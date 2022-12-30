@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center"
+    android:orientation="vertical"
     tools:context=".MainActivity">
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="@string/question_text"
-    android:padding="24dp"/>
+
+    <TextView
+        android:id="@+id/question_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="24dp"
+        android:text="@string/question_australia" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -22,9 +25,9 @@
             android:id="@+id/true_button"
             style="?buttonBarButtonStyle"
             android:layout_width="0dp"
-            android:layout_weight="0.7"
-            android:layout_marginRight="8dp"
             android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0.7"
             android:backgroundTint="#448AFF"
             android:text="@string/true_button"
             android:textColor="@color/black" />
@@ -32,12 +35,24 @@
         <Button
             android:id="@+id/false_button"
             style="?buttonBarButtonStyle"
-            android:backgroundTint="#448AFF"
-            android:textColor="@color/black"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_weight="0.7"
-            android:layout_height="wrap_content"
-            android:text="@string/false_button"/>
+            android:backgroundTint="#448AFF"
+            android:text="@string/false_button"
+            android:textColor="@color/black" />
+
     </LinearLayout>
+
+    <Button
+        android:id="@+id/next_button"
+        style="?buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#448AFF"
+        android:text="@string/next"
+        android:textColor="@color/black"
+        app:icon="@drawable/ic_baseline_arrow_forward_ios_24"
+        app:iconGravity="end"/>
 </LinearLayout>

@@ -1,16 +1,18 @@
 package ru.stas.geoquiz
 
-import androidx.appcompat.app.AppCompatActivity
+import android.opengl.Visibility
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
-import com.google.android.material.snackbar.Snackbar
+import androidx.appcompat.app.AppCompatActivity
 import ru.stas.geoquiz.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val questionsBank = listOf(
+    private var questionsBank = listOf(
         Questions(R.string.question_australia, true),
         Questions(R.string.question_oceans, true),
         Questions(R.string.question_mideast, false),
@@ -33,13 +35,36 @@ class MainActivity : AppCompatActivity() {
           checkAnswer(false)
         }
         binding.nextButton.setOnClickListener {
-            currentIndex = (currentIndex + 1) % questionsBank.size
+            nextQuestion()
+            updateQuestion()
+        }
+        binding.backButton.setOnClickListener {
+            if (currentIndex == 0){
+                binding.backButton.isEnabled = false
+                binding.backButton.text = "Дальше нельзя"
+                Toast.makeText(this,"Вы пока так далеко не зашли",Toast.LENGTH_SHORT).show()
+            }else if (currentIndex > 0 && currentIndex <= questionsBank.size){
+                binding.backButton.isEnabled = true
+                binding.backButton.text = "Посмотреть назад?"
+                Toast.makeText(this,"Забыли вопрос?",Toast.LENGTH_SHORT).show()
+                currentIndex--
+                updateQuestion()
+            }
+        }
+
+        binding.questionTextView.setOnClickListener {
+            nextQuestion()
             updateQuestion()
         }
     }
+
     private fun updateQuestion(){
         val questionResId = questionsBank[currentIndex].textResId
         binding.questionTextView.setText(questionResId)
+    }
+
+    private fun nextQuestion(){
+        currentIndex = (currentIndex + 1) % questionsBank.size
     }
 
     private fun checkAnswer(userAnswer : Boolean){

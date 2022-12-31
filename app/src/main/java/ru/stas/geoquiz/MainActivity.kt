@@ -35,29 +35,30 @@ class MainActivity : AppCompatActivity() {
           checkAnswer(false)
         }
         binding.nextButton.setOnClickListener {
+            resetState()
             nextQuestion()
             updateQuestion()
-        }
-        binding.backButton.setOnClickListener {
-            if (currentIndex == 0){
-                binding.backButton.isEnabled = false
-                binding.backButton.text = "Дальше нельзя"
-                Toast.makeText(this,"Вы пока так далеко не зашли",Toast.LENGTH_SHORT).show()
-            }else if (currentIndex > 0 && currentIndex <= questionsBank.size){
-                binding.backButton.isEnabled = true
-                binding.backButton.text = "Посмотреть назад?"
-                Toast.makeText(this,"Забыли вопрос?",Toast.LENGTH_SHORT).show()
-                currentIndex--
-                updateQuestion()
-            }
-        }
 
+        }
         binding.questionTextView.setOnClickListener {
             nextQuestion()
             updateQuestion()
         }
     }
 
+    private fun resetState(){
+        binding.backButton.setOnClickListener {
+        if(currentIndex > 0 && currentIndex <= questionsBank.size){
+            binding.backButton.isEnabled = true
+            binding.backButton.text = "Предыдущий вопрос"
+            nextQuestion()
+            updateQuestion()
+        }else if(currentIndex == 0){
+            nextQuestion()
+            updateQuestion()
+        }
+    }
+}
     private fun updateQuestion(){
         val questionResId = questionsBank[currentIndex].textResId
         binding.questionTextView.setText(questionResId)

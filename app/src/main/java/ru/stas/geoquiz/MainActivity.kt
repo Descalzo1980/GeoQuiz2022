@@ -1,81 +1,93 @@
 package ru.stas.geoquiz
 
-import android.opengl.Visibility
+import android.app.Activity
+import android.content.Intent
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import ru.stas.geoquiz.databinding.ActivityMainBinding
 
+private const val TAG = "QuizViewModel"
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private var questionsBank = listOf(
-        Questions(R.string.question_australia, true),
-        Questions(R.string.question_oceans, true),
-        Questions(R.string.question_mideast, false),
-        Questions(R.string.question_africa, false),
-        Questions(R.string.question_americas, true),
-        Questions(R.string.question_asia, true))
+    private val quizViewModel: QuizViewModel by viewModels()
 
-    private var currentIndex = 0
+    private val cheatLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            quizViewModel.isCheater =
+                result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+        }
 
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
+
+        blurCheatButton()
         updateQuestion()
 
         binding.trueButton.setOnClickListener {
             checkAnswer(true)
+            updateQuestion()
         }
         binding.falseButton.setOnClickListener {
           checkAnswer(false)
+            updateQuestion()
         }
         binding.nextButton.setOnClickListener {
-            resetState()
-            nextQuestion()
+            quizViewModel.moveToNext()
             updateQuestion()
 
         }
         binding.questionTextView.setOnClickListener {
-            nextQuestion()
             updateQuestion()
+        }
+
+        binding.cheatButton.setOnClickListener {
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity,answerIsTrue)
+            cheatLauncher.launch(intent)
         }
     }
 
-    private fun resetState(){
-        binding.backButton.setOnClickListener {
-        if(currentIndex > 0 && currentIndex <= questionsBank.size){
-            binding.backButton.isEnabled = true
-            binding.backButton.text = "Предыдущий вопрос"
-            nextQuestion()
-            updateQuestion()
-        }else if(currentIndex == 0){
-            nextQuestion()
-            updateQuestion()
-        }
-    }
-}
     private fun updateQuestion(){
-        val questionResId = questionsBank[currentIndex].textResId
-        binding.questionTextView.setText(questionResId)
+        val questionTextId = quizViewModel.currentQuestionText
+        binding.questionTextView.setText(questionTextId)
     }
 
-    private fun nextQuestion(){
-        currentIndex = (currentIndex + 1) % questionsBank.size
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun blurCheatButton() {
+        val effect = RenderEffect.createBlurEffect(
+            15F,
+            15F,
+            Shader.TileMode.MIRROR
+        )
+        binding.cheatButton.setRenderEffect(effect)
     }
 
     private fun checkAnswer(userAnswer : Boolean){
-        val correctAnswer = questionsBank[currentIndex].answer
-        val messageResId =
-            if(userAnswer == correctAnswer){
-                R.string.correct_toast
-            }else{
-                R.string.incorrect_toast
-            }
+        val correctAnswer = quizViewModel.currentQuestionAnswer
+        val messageResId = when {
+            quizViewModel.isCheater -> R.string.judgment_toast
+            userAnswer == correctAnswer -> R.string.correct_toast
+            else -> R.string.incorrect_toast
+        }
         Toast.makeText(this,messageResId,Toast.LENGTH_SHORT).show()
     }
 }

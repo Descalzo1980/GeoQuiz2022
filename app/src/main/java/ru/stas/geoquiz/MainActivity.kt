@@ -1,6 +1,7 @@
 package ru.stas.geoquiz
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.RenderEffect
 import android.graphics.Shader
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import ru.stas.geoquiz.databinding.ActivityMainBinding
 
 private const val TAG = "QuizViewModel"
+private const val EXTRA_API = "Build.VERSION_CODES.S"
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,7 +41,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
 
-        blurCheatButton()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            blurCheatButton()
+        }
         updateQuestion()
 
         binding.trueButton.setOnClickListener {
@@ -63,12 +67,27 @@ class MainActivity : AppCompatActivity() {
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent = CheatActivity.newIntent(this@MainActivity,answerIsTrue)
             cheatLauncher.launch(intent)
+            intentApi()
+
         }
     }
 
     private fun updateQuestion(){
         val questionTextId = quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextId)
+    }
+
+    private fun intentApi(){
+        val apiVersion = Build.VERSION_CODES.S
+        intentApi(apiVersion)
+        val intentApi = Intent(this,CheatActivity::class.java)
+        startActivity(intentApi)
+    }
+    private fun intentApi(apiVersion: Int) {
+        val data = Intent().apply {
+            putExtra(EXTRA_API, apiVersion)
+        }
+        setResult(Activity.RESULT_OK, data)
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
